@@ -1,12 +1,6 @@
-from urllib import request
-from urllib.parse import urljoin
-from bs4 import BeautifulSoup
-import configparser as config
-import datetime
 import openpyxl
 import os
 import pandas as pd
-import time
 
 
 class DataSaver:
