@@ -1,5 +1,7 @@
 import pandas
 
+from logger.Log import log
+
 
 class DataProcessor(object):
     def __init__(self) -> None:

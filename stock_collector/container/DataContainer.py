@@ -1,5 +1,7 @@
 import pandas
 
+from logger.Log import log
+
 
 class DataContainer(object):
 
@@ -29,7 +31,9 @@ class DataContainer(object):
         target_data = list()
 
         if url_table == dict():
-            print('')  # error_msg
+            log.e('        Failed to accumulate data (URL doesn\'t exist).')
+            log.e('')
+            return None
 
         for stock_code, urls in url_table.items():
             target_data = [pandas.read_html(url)[5] for url in urls]

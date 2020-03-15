@@ -4,8 +4,10 @@ import openpyxl
 import os
 import pandas
 
+from logger.Log import log
 
-class DataSaver:
+
+class ExecutionLogger(object):
     def __init__(self, file_name: str) -> None:
         """
         """
@@ -24,7 +26,10 @@ class DataSaver:
             logging_information = config['LOGGING']
             self.log_path = logging_information['LOG_PATH']
         except Exception as e:
-            print('')  # error_msg
+            log.i('        ' + str(e))
+            log.i('        Failed to get the information from Logging.ini .')
+            log.i('')
+            return None
 
         try:
             root = os.path.dirname(os.path.dirname(__file__))
@@ -35,7 +40,10 @@ class DataSaver:
                 self.is_header_writtern = True
             self.log_file = open(self.file_path, mode='a')
         except Exception as e:
-            print('')  # error_msg
+            self.e('        ' + str(e))
+            self.e('        Failed to create a log file.')
+            self.e('')
+            return None
 
         return None
 
@@ -45,7 +53,7 @@ class DataSaver:
         return None
 
 
-class AccumulativeDataLogger(DataSaver):
+class AccumulativeDataLogger(ExecutionLogger):
     def __init__(self) -> None:
         """
         """
@@ -62,19 +70,18 @@ class AccumulativeDataLogger(DataSaver):
         sheet_nm = f'{stock_name}_{stock_code}'
 
         if os.path.getsize(self.file_path) != 0:
-            # 既存ファイルに追記
             with pandas.ExcelWriter(path=self.file_path, mode='a') as writer:
                 writer.book = openpyxl.load_workbook(filename=self.file_path)
                 accumulative_data.to_excel(writer, sheet_name=sheet_nm,
                                            header=True, index=False, encoding='cp932')
         elif os.path.getsize(self.file_path) == 0:
-            # 新規ファイルを作成
+            # create a new file
             accumulative_data.to_excel(excel_writer=self.file_path, sheet_name=sheet_nm,
                                        header=True, index=False, encoding='cp932')
         return None
 
 
-class AverageDataLogger(DataSaver):
+class AverageDataLogger(ExecutionLogger):
     def __init__(self) -> None:
         """
         """
@@ -89,7 +96,6 @@ class AverageDataLogger(DataSaver):
         average_data_list.append(average_data)
         value_ave_data = pandas.concat(average_data_list)
         if os.path.getsize(self.file_path) != 0:
-            # 既存ファイルに追記
             wb = openpyxl.load_workbook(filename=self.file_path)
             sheet = wb.worksheets[0]
             val = value_ave_data.values.tolist()
@@ -101,10 +107,9 @@ class AverageDataLogger(DataSaver):
             wb.save(filename=self.file_path)
 
         elif os.path.getsize(self.file_path) == 0:
-            # 新規ファイルを作成
+            # create a new file
             value_ave_data.to_excel(excel_writer=self.file_path, sheet_name='stock_info',
                                     header=True, index=False, encoding='cp932')
-            # self.value_ave_data_list.clear()
 
 
 if __name__ == '__main__':

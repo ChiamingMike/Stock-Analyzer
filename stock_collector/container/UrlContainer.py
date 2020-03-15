@@ -6,6 +6,8 @@ import time
 from bs4 import BeautifulSoup
 from urllib import request
 
+from logger.Log import log
+
 
 class UrlContainer(object):
 
@@ -42,11 +44,12 @@ class UrlContainer(object):
             stock_codes = config.get(section, 'code').split(',')
             self.period = config.get(section, 'period')
         except Exception as e:
-            print(e)
-            pass  # error_msg
+            log.i('        ' + str(e))
+            log.i('        Failed to get the information from setting.ini .')
+            log.i('')
             return None
 
-        self.stock_codes = list(set(stock_codes))
+        self.stock_codes = sorted(list(set(stock_codes)))
         self.create_url()
 
         return None
@@ -64,6 +67,16 @@ class UrlContainer(object):
     def create_url(self) -> None:
         """
         """
+        if self.stock_codes == list():
+            log.e('        Failed to create URL (Stock code doesn\'t exist).')
+            log.e('')
+            return None
+        else:
+            stock_codes = ', '.join(self.stock_codes)
+            log.i(f'        Found {len(self.stock_codes)} codes.')
+            log.i(f'        STOCK CODE: {(stock_codes)}')
+            log.i('')
+
         OFFSET = 1
         for stock_code in self.stock_codes:
             url = f'https://kabutan.jp/stock/kabuka?code={stock_code}&ashi={self.period}&page={OFFSET}'
@@ -83,10 +96,12 @@ class UrlContainer(object):
                 if not bool(is_exist_pager):
                     stock_name = soup.find('h2').contents[1]
                     self.conversion_table[stock_code] = stock_name
-                    print(
-                        f'Completed collecting urls relating {stock_code} ( {stock_name} )')
-                    break  # log_msg
-
+                    log.i(
+                        f'        Completed collecting URLs relating {stock_code} ( {stock_name} ).')
+                    log.i(
+                        f'        {len(self.url_table[stock_code])} relevant URLs found.')
+                    log.i('')
+                    break
                 elif bool(is_exist_pager):
                     next_page = is_exist_pager.a.get('href')
                     next_url = f'https://kabutan.jp/stock/kabuka{next_page}'
@@ -99,7 +114,10 @@ class UrlContainer(object):
         """
         """
         if self.stock_codes == list():
-            print('failed to get stock_codes')  # error_msg
+            log.e(
+                '        Failed to get the list of sotck codes (Stock code doesn\'t exist).')
+            log.e('')
+            return list()
 
         return self.stock_codes
 

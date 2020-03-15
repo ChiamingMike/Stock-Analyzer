@@ -6,6 +6,8 @@ from container.UrlContainer import UrlContainer
 from container.DataContainer import DataContainer
 from logger.ExecutionLogger import AccumulativeDataLogger
 from logger.ExecutionLogger import AverageDataLogger
+from logger.Log import Log
+from logger.Log import log
 
 
 class StockParser(object):
@@ -43,7 +45,8 @@ class StockParser(object):
 
 
 if __name__ == '__main__':
-    print(datetime.datetime.now())
+    start_time = time.time()
     stock_parser = StockParser()
     stock_parser.collect_stock_data()
-    print(datetime.datetime.now())
+    end_time = time.time() - start_time
+    log.i(f'        TIME : {end_time} (s)')
