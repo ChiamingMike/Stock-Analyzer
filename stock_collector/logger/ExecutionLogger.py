@@ -26,9 +26,9 @@ class ExecutionLogger(object):
             logging_information = config['LOGGING']
             self.log_path = logging_information['LOG_PATH']
         except Exception as e:
-            log.i('        ' + str(e))
-            log.i('        Failed to get the information from Logging.ini .')
-            log.i('')
+            log.w('        ' + str(e))
+            log.w('        Failed to get the information from Logging.ini .')
+            log.w('')
             return None
 
         try:

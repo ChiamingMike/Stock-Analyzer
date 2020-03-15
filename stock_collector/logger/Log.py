@@ -41,12 +41,14 @@ class Log(object):
             self.log_level = int(logging_information['LOG_LEVEL'])
             self.log_path = logging_information['LOG_PATH']
         except Exception as e:
-            self.i('        ' + str(e))
-            self.i('        Failed to get the information from Loggind.ini .')
-            self.i('')
+            self.w('        ' + str(e))
+            self.w('        Failed to get the information from Loggind.ini .')
+            self.w('')
             return None
 
-        logging.basicConfig(level=self.log_level, format=log_format)
+        logging.basicConfig(level=self.log_level,
+                            format=log_format,
+                            datefmt='%Y-%m-%d %H:%M:%S')
 
         execution_date = datetime.datetime.now().strftime('%Y%m%d')
         self.file_name = datetime.datetime.now().strftime('%Y%m%d') + '.log'
@@ -73,23 +75,23 @@ class Log(object):
         return None
 
     def e(self, msg):
-        self.logger.log(logging.CRITICAL, 'ERROR: ' + str(msg))
+        self.logger.log(logging.ERROR, 'ERROR: ' + str(msg))
         return None
 
     def w(self, msg):
-        self.logger.log(logging.CRITICAL, 'WARN: ' + str(msg))
+        self.logger.log(logging.WARNING, 'WARN: ' + str(msg))
         return None
 
     def i(self, msg):
-        self.logger.log(25, 'INFO: ' + str(msg))
+        self.logger.log(logging.INFO, 'INFO: ' + str(msg))
         return None
 
     def d(self, msg):
-        self.logger.log(15, 'DEBUG: ' + str(msg))
+        self.logger.log(logging.DEBUG, 'DEBUG: ' + str(msg))
         return None
 
     def t(self, msg):
-        self.logger.log(5, 'TRACE: ' + str(msg))
+        self.logger.log(logging.DEBUG, 'TRACE: ' + str(msg))
         return None
 
 

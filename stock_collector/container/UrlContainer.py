@@ -44,9 +44,9 @@ class UrlContainer(object):
             stock_codes = config.get(section, 'code').split(',')
             self.period = config.get(section, 'period')
         except Exception as e:
-            log.i('        ' + str(e))
-            log.i('        Failed to get the information from setting.ini .')
-            log.i('')
+            log.w('        ' + str(e))
+            log.w('        Failed to get the information from setting.ini .')
+            log.w('')
             return None
 
         self.stock_codes = sorted(list(set(stock_codes)))
