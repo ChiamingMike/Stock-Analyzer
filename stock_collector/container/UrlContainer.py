@@ -1,7 +1,5 @@
 import configparser
 import os
-import pandas
-import time
 
 from bs4 import BeautifulSoup
 from urllib import request
@@ -50,7 +48,7 @@ class UrlContainer(object):
             return None
 
         self.stock_codes = sorted(list(set(stock_codes)))
-        self.create_url()
+        self.create_initial_url()
 
         return None
 
@@ -64,7 +62,7 @@ class UrlContainer(object):
 
         return None
 
-    def create_url(self) -> None:
+    def create_initial_url(self) -> None:
         """
         """
         if self.stock_codes == list():
@@ -84,7 +82,7 @@ class UrlContainer(object):
 
         return None
 
-    def accumulate_url(self) -> None:
+    def register_accumulative_url(self) -> None:
         """
         """
         for stock_code in self.url_table.keys():
@@ -110,7 +108,7 @@ class UrlContainer(object):
 
         return None
 
-    def get_stock_list(self) -> list:
+    def get_stock_codes(self) -> list:
         """
         """
         if self.stock_codes == list():

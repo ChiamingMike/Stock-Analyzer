@@ -8,13 +8,13 @@ from logger.Log import log
 
 
 class ExecutionLogger(object):
+
     def __init__(self, file_name: str) -> None:
         """
         """
         execution_date = datetime.datetime.now().strftime('%Y%m%d')
 
-        self.log_file_name = f'{execution_date}_{file_name}'
-        self.is_header_writtern = bool()
+        self.log_file_name = f'{execution_date}_{file_name}.csv'
         self.log_path = str()
         self.file_path = str()
 
@@ -32,13 +32,12 @@ class ExecutionLogger(object):
             return None
 
         try:
-            root = os.path.dirname(os.path.dirname(__file__))
-            os.makedirs(os.path.join(root, execution_date), exist_ok=True)
+            if self.log_path == str():
+                self.log_path = os.path.dirname(os.path.dirname(__file__))
+            os.makedirs(os.path.join(self.log_path,
+                                     execution_date), exist_ok=True)
             self.file_path = os.path.join(
-                root, execution_date, self.log_file_name)
-            if os.path.isfile(self.file_path):
-                self.is_header_writtern = True
-            self.log_file = open(self.file_path, mode='a')
+                self.log_path, execution_date, self.log_file_name)
         except Exception as e:
             self.e('        ' + str(e))
             self.e('        Failed to create a log file.')
@@ -47,41 +46,32 @@ class ExecutionLogger(object):
 
         return None
 
-    def dump_execution_log(self) -> None:
+    def dump_execution_log(self, accumulative_data: pandas.DataFrame) -> None:
         """
         """
+        accumulative_data.to_csv(
+            self.file_path, index=False, mode='w', encoding='cp932')
         return None
 
 
 class AccumulativeDataLogger(ExecutionLogger):
-    def __init__(self) -> None:
+
+    def __init__(self, sotck_name, stock_code) -> None:
         """
         """
-        self.file_name = 'stock_detail.xlsx'
+        self.file_name = f'{stock_code}_{sotck_name}'
         super().__init__(self.file_name)
         return None
 
-    def dump_execution_log(self,
-                           stock_name: str,
-                           stock_code: str,
-                           accumulative_data: pandas.DataFrame) -> None:
+    def dump_execution_log(self, accumulative_data: pandas.DataFrame) -> None:
         """
         """
-        sheet_nm = f'{stock_name}_{stock_code}'
-
-        if os.path.getsize(self.file_path) != 0:
-            with pandas.ExcelWriter(path=self.file_path, mode='a') as writer:
-                writer.book = openpyxl.load_workbook(filename=self.file_path)
-                accumulative_data.to_excel(writer, sheet_name=sheet_nm,
-                                           header=True, index=False, encoding='cp932')
-        elif os.path.getsize(self.file_path) == 0:
-            # create a new file
-            accumulative_data.to_excel(excel_writer=self.file_path, sheet_name=sheet_nm,
-                                       header=True, index=False, encoding='cp932')
+        super().dump_execution_log(accumulative_data)
         return None
 
 
 class AverageDataLogger(ExecutionLogger):
+
     def __init__(self) -> None:
         """
         """
