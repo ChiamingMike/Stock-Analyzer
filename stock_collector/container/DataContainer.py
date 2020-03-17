@@ -2,6 +2,7 @@ import pandas
 
 from container.UrlContainer import UrlContainer
 from logger.ExecutionLogger import AccumulativeDataLogger
+from logger.ExecutionLogger import AverageDataLogger
 from logger.Log import log
 
 
@@ -24,10 +25,16 @@ class DataContainer(object):
         if self.__is_initialized is True:
             return None
 
+        self.__is_initialized = True
+
         self.url_container = UrlContainer()
 
-        self.average_data_list = list()
+        self.stock_codes = self.url_container.get_stock_codes()
+        self.stock_code = str()
+        self.average_data_table = dict()
         self.data_table = dict()
+
+        return None
 
     def register_accumulative_data(self, url_table) -> None:
         """
@@ -55,10 +62,10 @@ class DataContainer(object):
 
         return None
 
-    def register_average_data(self, average_value_table) -> None:
+    def register_average_data(self, average_data_table: dict) -> None:
         """
         """
-        self.average_data_list.append(average_value_table)
+        self.average_data_table = average_data_table
         return None
 
     def get_accumulative_data(self, stock_code: str) -> pandas.DataFrame:
@@ -66,10 +73,10 @@ class DataContainer(object):
         """
         return self.data_table.get(stock_code, pandas.DataFrame())
 
-    def get_average_data(self) -> list:
+    def get_average_data(self) -> pandas.DataFrame:
         """
         """
-        return self.average_data_list
+        return self.average_data_table
 
     def dump_accumulative_data(self, stock_name, stock_code: str) -> None:
         """
@@ -84,6 +91,17 @@ class DataContainer(object):
             stock_name, stock_code)
         accumulative_data_logger.dump_execution_log(
             self.data_table[stock_code])
+
+        return None
+
+    def dump_average_data(self) -> None:
+        """
+        """
+        average_data_logger = AverageDataLogger()
+        for stock_code, average_data in self.average_data_table.items():
+            log.e(f'        Exporting average data...({stock_code})')
+            log.e('')
+            average_data_logger.dump_execution_log(average_data)
 
         return None
 

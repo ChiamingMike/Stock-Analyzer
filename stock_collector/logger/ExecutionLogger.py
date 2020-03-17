@@ -50,7 +50,7 @@ class ExecutionLogger(object):
         """
         """
         accumulative_data.to_csv(
-            self.file_path, index=False, mode='w', encoding='cp932')
+            self.file_path, header=True, index=False, mode='w', encoding='cp932')
         return None
 
 
@@ -75,31 +75,19 @@ class AverageDataLogger(ExecutionLogger):
     def __init__(self) -> None:
         """
         """
-        self.file_name = 'stock_info.xlsx'
+        self.file_name = 'stock_info.csv'
         super().__init__(self.file_name)
         return None
 
-    def output_ave_data(self, average_data: pandas.DataFrame) -> None:
+    def dump_execution_log(self, accumulative_data: pandas.DataFrame) -> None:
         """
         """
-        average_data_list = list()
-        average_data_list.append(average_data)
-        value_ave_data = pandas.concat(average_data_list)
-        if os.path.getsize(self.file_path) != 0:
-            wb = openpyxl.load_workbook(filename=self.file_path)
-            sheet = wb.worksheets[0]
-            val = value_ave_data.values.tolist()
-
-            row_length = len(val)
-            for i in range(0, row_length):
-                sheet.append(val[i])
-
-            wb.save(filename=self.file_path)
-
-        elif os.path.getsize(self.file_path) == 0:
-            # create a new file
-            value_ave_data.to_excel(excel_writer=self.file_path, sheet_name='stock_info',
-                                    header=True, index=False, encoding='cp932')
+        if os.path.isfile(self.file_path) and os.path.getsize(self.file_path) != 0:
+            accumulative_data.to_csv(
+                self.file_path, header=False, index=False, mode='a', encoding='cp932')
+            return None
+        super().dump_execution_log(accumulative_data)
+        return None
 
 
 if __name__ == '__main__':
