@@ -1,5 +1,6 @@
 import pandas
 
+from constant.ColumnsDefinition import ColumnsDefinition
 from container.UrlContainer import UrlContainer
 from logger.ExecutionLogger import AccumulativeDataLogger
 from logger.ExecutionLogger import AverageDataLogger
@@ -55,7 +56,7 @@ class DataContainer(object):
                 continue
             else:
                 self.data_table[stock_code] = pandas.concat(target_data, axis=0).sort_values(
-                    '日付', ascending=False)
+                    ColumnsDefinition.DATE, ascending=False)
                 log.i(
                     f'        Accumulated data with URLs related to {stock_code}.')
                 log.i('')
@@ -99,8 +100,8 @@ class DataContainer(object):
         """
         average_data_logger = AverageDataLogger()
         for stock_code, average_data in self.average_data_table.items():
-            log.e(f'        Exporting average data...({stock_code})')
-            log.e('')
+            log.i(f'        Exporting average data...({stock_code})')
+            log.i('')
             average_data_logger.dump_execution_log(average_data)
 
         return None
