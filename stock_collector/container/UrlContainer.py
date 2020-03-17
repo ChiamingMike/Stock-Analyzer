@@ -1,5 +1,6 @@
 import configparser
 import os
+import re
 
 from bs4 import BeautifulSoup
 from urllib import request
@@ -28,6 +29,13 @@ class UrlContainer(object):
 
         self.__is_intialized = True
 
+        period = {
+            'daily': 'day',
+            'weekly': 'wek',
+            'monthly': 'mon',
+            'yearly': 'yar'
+        }
+
         self.period = str()
         self.stock_codes = list()
         self.url_table = dict()
@@ -35,12 +43,13 @@ class UrlContainer(object):
 
         try:
             root = os.path.join(os.path.dirname(os.path.dirname(
-                __file__)), 'conf', 'setting.ini')
+                __file__)), 'conf', 'Setting.ini')
             config = configparser.ConfigParser()
             config.read(root)
-            section = 'stock_code'
-            stock_codes = config.get(section, 'code').split(',')
-            self.period = config.get(section, 'period')
+            section = 'DEFAULT'
+            stock_codes = re.sub(
+                r'\s+', '', config.get(section, 'code')).split(',')
+            self.period = period.get(config.get(section, 'period'), None)
         except Exception as e:
             log.w('        ' + str(e))
             log.w('        Failed to get the information from setting.ini .')
