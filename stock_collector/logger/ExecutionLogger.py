@@ -1,6 +1,5 @@
 import configparser
 import datetime
-import openpyxl
 import os
 import pandas
 
@@ -49,8 +48,11 @@ class ExecutionLogger(object):
     def dump_execution_log(self, accumulative_data: pandas.DataFrame) -> None:
         """
         """
-        accumulative_data.to_csv(
-            self.file_path, header=True, index=False, mode='w', encoding='cp932')
+        accumulative_data.to_csv(self.file_path,
+                                 header=True,
+                                 index=False,
+                                 mode='w',
+                                 encoding='cp932')
         return None
 
 
@@ -79,14 +81,18 @@ class AverageDataLogger(ExecutionLogger):
         super().__init__(self.file_name)
         return None
 
-    def dump_execution_log(self, accumulative_data: pandas.DataFrame) -> None:
+    def dump_execution_log(self, average_data: pandas.DataFrame) -> None:
         """
         """
-        if os.path.isfile(self.file_path) and os.path.getsize(self.file_path) != 0:
-            accumulative_data.to_csv(
-                self.file_path, header=False, index=False, mode='a', encoding='cp932')
+        if os.path.isfile(self.file_path)\
+                and os.path.getsize(self.file_path) != 0:
+            average_data.to_csv(self.file_path,
+                                header=False,
+                                index=False,
+                                mode='a',
+                                encoding='cp932')
             return None
-        super().dump_execution_log(accumulative_data)
+        super().dump_execution_log(average_data)
         return None
 
 

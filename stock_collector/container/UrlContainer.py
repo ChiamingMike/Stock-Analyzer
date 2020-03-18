@@ -132,13 +132,21 @@ class JPUrlContainer(UrlContainer):
             log.w('')
             return None
 
+        if self.url_table == dict():
+            log.e('Failed to collect relevant URLs.')
+            log.e('Initial URL doesn\'t exist.')
+            log.e('')
+            return None
+
         for stock_code in self.url_table.keys():
 
             while True:
                 html = request.urlopen(self.url_table[stock_code][-1])
                 soup = BeautifulSoup(html, 'html.parser')
                 is_exist_pager = soup.find('li', string='次へ＞')
-                if not bool(is_exist_pager):
+                if not is_exist_pager:
+                    # will remove the get stock_name part
+                    # will dl a stock code and name table beforehand
                     stock_name = soup.find('h2').contents[1]
                     self.conversion_table[stock_code] = stock_name
                     log.i(
@@ -147,8 +155,13 @@ class JPUrlContainer(UrlContainer):
                         f'{len(self.url_table[stock_code])} relevant URLs found.')
                     log.i('')
                     break
-                elif bool(is_exist_pager):
+                elif is_exist_pager:
                     next_page = is_exist_pager.a.get('href')
+                    if not next_page:
+                        log.e('Failed to find next page.')
+                        log.e('')
+                        return None
+
                     next_url = next_url_format.format(next_page=next_page)
                     self.url_table[stock_code].append(next_url)
                     # time.sleep(3)

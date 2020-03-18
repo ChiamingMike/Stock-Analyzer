@@ -9,6 +9,30 @@ from logger.Log import log
 
 class DataContainer(object):
 
+    def __init__(self) -> None:
+        pass
+
+    def register_accumulative_data(self, url_table) -> None:
+        pass
+
+    def register_average_data(self, average_data_table: dict) -> None:
+        pass
+
+    def get_accumulative_data(self, stock_code: str) -> pandas.DataFrame:
+        pass
+
+    def get_average_data(self) -> pandas.DataFrame:
+        pass
+
+    def dump_accumulative_data(self, stock_name, stock_code: str) -> None:
+        pass
+
+    def dump_average_data(self) -> None:
+        pass
+
+
+class JPDataContainer(DataContainer):
+
     __instance = None
     __is_initialized = False
 
@@ -87,8 +111,8 @@ class DataContainer(object):
             log.e('')
             return None
 
-        accumulative_data_logger = AccumulativeDataLogger(
-            stock_name, stock_code)
+        accumulative_data_logger = AccumulativeDataLogger(stock_name,
+                                                          stock_code)
         accumulative_data_logger.dump_execution_log(
             self.data_table[stock_code])
 

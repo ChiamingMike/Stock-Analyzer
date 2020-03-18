@@ -1,7 +1,7 @@
 import pandas
 
 from constant.Definition import ColumnsDefinition
-from container.DataContainer import DataContainer
+from container.DataContainer import JPDataContainer
 from container.UrlContainer import JPUrlContainer
 from logger.Log import log
 
@@ -11,7 +11,7 @@ class DataProcessor(object):
     def __init__(self, stock_code) -> None:
         """
         """
-        self.data_container = DataContainer()
+        self.data_container = JPDataContainer()
         self.url_container = JPUrlContainer()
 
         self.stock_code = stock_code
@@ -52,13 +52,26 @@ class AverageDataProcessor(DataProcessor):
         """
         accumulative_data = self.data_container.get_accumulative_data(
             self.stock_code)
-        self.length = len(accumulative_data)
-        self.open = sum(
-            accumulative_data.loc[:, ColumnsDefinition.OPENING_PRICE])
-        self.high = sum(accumulative_data.loc[:, ColumnsDefinition.HIGH_PRICE])
-        self.low = sum(accumulative_data.loc[:, ColumnsDefinition.LOW_PRICE])
-        self.close = sum(
-            accumulative_data.loc[:, ColumnsDefinition.CLOSING_PRICE])
+        if accumulative_data.empty:
+            log.e(f'No accumulative data relevant to {self.stock_code}')
+            log.e('')
+            return None
+
+        try:
+            self.length = len(accumulative_data)
+            self.open = sum(
+                accumulative_data.loc[:, ColumnsDefinition.OPENING_PRICE])
+            self.high = sum(
+                accumulative_data.loc[:, ColumnsDefinition.HIGH_PRICE])
+            self.low = sum(
+                accumulative_data.loc[:, ColumnsDefinition.LOW_PRICE])
+            self.close = sum(
+                accumulative_data.loc[:, ColumnsDefinition.CLOSING_PRICE])
+        except Exception as e:
+            log.e(e)
+            log.e('Failed to prepare calculation with accumulative data.')
+            log.e('')
+            return None
 
         return None
 
@@ -66,6 +79,11 @@ class AverageDataProcessor(DataProcessor):
         """
         """
         average_data_table = dict()
+        if str() in [self.open, self.high, self.low, self.close]:
+            log.e('Failed to do calculation with accumulative data.')
+            log.e('')
+            return None
+
         average_data = pandas.DataFrame([{
             'Name': str(self.stock_name),
             'Code': str(self.stock_code),
