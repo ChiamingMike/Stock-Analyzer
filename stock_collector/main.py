@@ -1,7 +1,7 @@
 import time
 
 from container.DataContainer import DataContainer
-from container.UrlContainer import UrlContainer
+from container.UrlContainer import JPUrlContainer
 from logger.ExecutionLogger import AverageDataLogger
 from logger.Log import log
 from processor.Processor import AverageDataProcessor
@@ -12,7 +12,7 @@ class StockParser(object):
     def __init__(self) -> None:
         """
         """
-        self.url_container = UrlContainer()
+        self.url_container = JPUrlContainer()
         self.data_container = DataContainer()
         self.average_data_logger = AverageDataLogger()
 

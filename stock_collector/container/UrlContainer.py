@@ -12,6 +12,42 @@ from logger.Log import log
 
 class UrlContainer(object):
 
+    def __init__(self) -> None:
+        pass
+
+    def create_initial_url(self) -> None:
+        pass
+
+    def register_accumulative_url(self) -> None:
+        pass
+
+    def get_stock_codes(self) -> list:
+        pass
+
+    def get_conversion_table(self, stock_code: str) -> str:
+        pass
+
+    def get_url_table(self) -> dict:
+        """
+        """
+        return self.url_table
+
+    def _is_valid(self, url, stock_code) -> bool:
+        """
+        """
+        try:
+            result = request.urlopen(url)
+            result.close()
+            return True
+        except Exception as e:
+            log.w(e)
+            log.w(f'Invalid URL for stock code {stock_code}')
+            log.w('')
+            return False
+
+
+class JPUrlContainer(UrlContainer):
+
     __instance = None
     __is_intialized = False
 
@@ -53,6 +89,7 @@ class UrlContainer(object):
             return None
 
         self.stock_codes = sorted(list(set(stock_codes)))
+        # need to add a function to check if there is any invalid codes and eliminate them.
         self.create_initial_url()
 
         return None
@@ -81,7 +118,7 @@ class UrlContainer(object):
             url = url_format.format(stock_code=stock_code,
                                     period=self.period,
                                     offset=OFFSET)
-            if self.__is_valid(url, stock_code):
+            if self._is_valid(url, stock_code):
                 self.url_table[stock_code] = [url]
 
         return None
@@ -138,18 +175,10 @@ class UrlContainer(object):
         """
         return self.url_table
 
-    def __is_valid(self, url, stock_code) -> bool:
+    def _is_valid(self, url, stock_code) -> bool:
         """
         """
-        try:
-            result = request.urlopen(url)
-            result.close()
-            return True
-        except Exception as e:
-            log.w(e)
-            log.w(f'Invalid URL for stock code {stock_code}')
-            log.w('')
-            return False
+        return super()._is_valid(url, stock_code)
 
 
 if __name__ == '__main__':

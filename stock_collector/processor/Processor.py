@@ -2,7 +2,7 @@ import pandas
 
 from constant.Definition import ColumnsDefinition
 from container.DataContainer import DataContainer
-from container.UrlContainer import UrlContainer
+from container.UrlContainer import JPUrlContainer
 from logger.Log import log
 
 
@@ -12,7 +12,7 @@ class DataProcessor(object):
         """
         """
         self.data_container = DataContainer()
-        self.url_container = UrlContainer()
+        self.url_container = JPUrlContainer()
 
         self.stock_code = stock_code
         self.stock_name = self.url_container.get_conversion_table(
