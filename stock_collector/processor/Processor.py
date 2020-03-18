@@ -1,6 +1,6 @@
 import pandas
 
-from constant.ColumnsDefinition import ColumnsDefinition
+from constant.Definition import ColumnsDefinition
 from container.DataContainer import DataContainer
 from container.UrlContainer import UrlContainer
 from logger.Log import log

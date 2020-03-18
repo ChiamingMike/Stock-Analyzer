@@ -1,6 +1,6 @@
 import pandas
 
-from constant.ColumnsDefinition import ColumnsDefinition
+from constant.Definition import ColumnsDefinition
 from container.UrlContainer import UrlContainer
 from logger.ExecutionLogger import AccumulativeDataLogger
 from logger.ExecutionLogger import AverageDataLogger
@@ -43,7 +43,7 @@ class DataContainer(object):
         target_data = list()
 
         if url_table == dict():
-            log.e('        Failed to accumulate data (URL doesn\'t exist).')
+            log.e('Failed to accumulate data (URL doesn\'t exist).')
             log.e('')
             return None
 
@@ -51,14 +51,13 @@ class DataContainer(object):
             target_data = [pandas.read_html(url)[5] for url in urls]
             if len(target_data) != len(urls) or target_data == list():
                 log.e(
-                    f'        Failed to accumulate data with URLs related to {stock_code}.')
+                    f'Failed to accumulate data with URLs related to {stock_code}.')
                 log.e('')
                 continue
             else:
                 self.data_table[stock_code] = pandas.concat(target_data, axis=0).sort_values(
                     ColumnsDefinition.DATE, ascending=False)
-                log.i(
-                    f'        Accumulated data with URLs related to {stock_code}.')
+                log.i(f'Accumulated data with URLs related to {stock_code}.')
                 log.i('')
 
         return None
@@ -84,7 +83,7 @@ class DataContainer(object):
         """
         stock_name = self.url_container.get_conversion_table(stock_code)
         if stock_name == str():
-            log.e('        Failed to match stock name with stock code.')
+            log.e('Failed to match stock name with stock code.')
             log.e('')
             return None
 
@@ -100,7 +99,7 @@ class DataContainer(object):
         """
         average_data_logger = AverageDataLogger()
         for stock_code, average_data in self.average_data_table.items():
-            log.i(f'        Exporting average data...({stock_code})')
+            log.i(f'Exporting average data...({stock_code})')
             log.i('')
             average_data_logger.dump_execution_log(average_data)
 

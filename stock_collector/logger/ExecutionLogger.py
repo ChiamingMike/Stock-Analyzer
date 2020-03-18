@@ -26,8 +26,8 @@ class ExecutionLogger(object):
             logging_information = config['LOGGING']
             self.log_path = logging_information['LOG_PATH']
         except Exception as e:
-            log.w('        ' + str(e))
-            log.w('        Failed to get the information from Logging.ini .')
+            log.w(e)
+            log.w('Failed to get the information from Logging.ini .')
             log.w('')
             return None
 
@@ -39,8 +39,8 @@ class ExecutionLogger(object):
             self.file_path = os.path.join(
                 self.log_path, execution_date, self.log_file_name)
         except Exception as e:
-            self.e('        ' + str(e))
-            self.e('        Failed to create a log file.')
+            self.e(e)
+            self.e('Failed to create a log file.')
             self.e('')
             return None
 
@@ -75,7 +75,7 @@ class AverageDataLogger(ExecutionLogger):
     def __init__(self) -> None:
         """
         """
-        self.file_name = 'stock_info.csv'
+        self.file_name = 'stock_info'
         super().__init__(self.file_name)
         return None
 

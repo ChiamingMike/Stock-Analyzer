@@ -5,6 +5,8 @@ import re
 from bs4 import BeautifulSoup
 from urllib import request
 
+from constant.Definition import UrlsDefinition
+from constant.Definition import PeriodDefinition
 from logger.Log import log
 
 
@@ -29,30 +31,24 @@ class UrlContainer(object):
 
         self.__is_intialized = True
 
-        period = {
-            'daily': 'day',
-            'weekly': 'wek',
-            'monthly': 'mon',
-            'yearly': 'yar'
-        }
-
         self.period = str()
         self.stock_codes = list()
         self.url_table = dict()
         self.conversion_table = dict()
 
         try:
-            root = os.path.join(os.path.dirname(os.path.dirname(
-                __file__)), 'conf', 'Setting.ini')
+            root = os.path.join(os.path.dirname(
+                os.path.dirname(__file__)), 'conf', 'Setting.ini')
             config = configparser.ConfigParser()
             config.read(root)
             section = 'DEFAULT'
             stock_codes = re.sub(
                 r'\s+', '', config.get(section, 'code')).split(',')
-            self.period = period.get(config.get(section, 'period'), None)
+            self.period = PeriodDefinition.period.get(
+                config.get(section, 'period'), None)
         except Exception as e:
-            log.w('        ' + str(e))
-            log.w('        Failed to get the information from setting.ini .')
+            log.w(e)
+            log.w('Failed to get the information from setting.ini .')
             log.w('')
             return None
 
@@ -61,39 +57,44 @@ class UrlContainer(object):
 
         return None
 
-    def initialize_all_data(self) -> None:
-        """
-        """
-        self.period = str()
-        self.stock_codes = list()
-        self.url_table = dict()
-        self.conversion_table = dict()
-
-        return None
-
     def create_initial_url(self) -> None:
         """
         """
         if self.stock_codes == list():
-            log.e('        Failed to create URL (Stock code doesn\'t exist).')
+            log.e('Failed to create URL (Stock code doesn\'t exist).')
             log.e('')
             return None
         else:
             stock_codes = ', '.join(self.stock_codes)
-            log.i(f'        Found {len(self.stock_codes)} codes.')
-            log.i(f'        STOCK CODE: {(stock_codes)}')
+            log.i(f'Found {len(self.stock_codes)} codes.')
+            log.i(f'STOCK CODE: {(stock_codes)}')
             log.i('')
+
+        url_format = UrlsDefinition.kabutan_jp.get('url', str())
+        if url_format == str():
+            log.w('Cannot find a format to create initial url.')
+            log.w('')
+            return None
 
         OFFSET = 1
         for stock_code in self.stock_codes:
-            url = f'https://kabutan.jp/stock/kabuka?code={stock_code}&ashi={self.period}&page={OFFSET}'
-            self.url_table[stock_code] = [url]
+            url = url_format.format(stock_code=stock_code,
+                                    period=self.period,
+                                    offset=OFFSET)
+            if self.__is_valid(url, stock_code):
+                self.url_table[stock_code] = [url]
 
         return None
 
     def register_accumulative_url(self) -> None:
         """
         """
+        next_url_format = UrlsDefinition.kabutan_jp.get('next_page', str())
+        if next_url_format == str():
+            log.w('Cannot find a format to create url for next page.')
+            log.w('')
+            return None
+
         for stock_code in self.url_table.keys():
 
             while True:
@@ -104,14 +105,14 @@ class UrlContainer(object):
                     stock_name = soup.find('h2').contents[1]
                     self.conversion_table[stock_code] = stock_name
                     log.i(
-                        f'        Completed collecting URLs relating {stock_code} ( {stock_name} ).')
+                        f'Completed collecting URLs relating {stock_code} ({stock_name}).')
                     log.i(
-                        f'        {len(self.url_table[stock_code])} relevant URLs found.')
+                        f'{len(self.url_table[stock_code])} relevant URLs found.')
                     log.i('')
                     break
                 elif bool(is_exist_pager):
                     next_page = is_exist_pager.a.get('href')
-                    next_url = f'https://kabutan.jp/stock/kabuka{next_page}'
+                    next_url = next_url_format.format(next_page=next_page)
                     self.url_table[stock_code].append(next_url)
                     # time.sleep(3)
 
@@ -121,8 +122,7 @@ class UrlContainer(object):
         """
         """
         if self.stock_codes == list():
-            log.e(
-                '        Failed to get the list of sotck codes (Stock code doesn\'t exist).')
+            log.e('Failed to get the list of sotck codes (Stock code doesn\'t exist).')
             log.e('')
             return list()
 
@@ -137,6 +137,19 @@ class UrlContainer(object):
         """
         """
         return self.url_table
+
+    def __is_valid(self, url, stock_code) -> bool:
+        """
+        """
+        try:
+            result = request.urlopen(url)
+            result.close()
+            return True
+        except Exception as e:
+            log.w(e)
+            log.w(f'Invalid URL for stock code {stock_code}')
+            log.w('')
+            return False
 
 
 if __name__ == '__main__':

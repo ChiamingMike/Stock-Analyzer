@@ -41,8 +41,8 @@ class Log(object):
             self.log_level = int(logging_information['LOG_LEVEL'])
             self.log_path = logging_information['LOG_PATH']
         except Exception as e:
-            self.w('        ' + str(e))
-            self.w('        Failed to get the information from Loggind.ini .')
+            self.w(str(e))
+            self.w('Failed to get the information from Loggind.ini .')
             self.w('')
             return None
 
@@ -63,35 +63,35 @@ class Log(object):
             self.file_handler.setFormatter(logging.Formatter(log_format))
             self.logger.addHandler(self.file_handler)
         except Exception as e:
-            self.e('        ' + str(e))
-            self.e('        Failed to create a log file.')
+            self.e(str(e))
+            self.e('Failed to create a log file.')
             self.e('')
             return None
 
         return None
 
     def c(self, msg):
-        self.logger.log(logging.CRITICAL, 'CRITICAL: ' + str(msg))
+        self.logger.log(logging.CRITICAL, 'CRITICAL:        ' + str(msg))
         return None
 
     def e(self, msg):
-        self.logger.log(logging.ERROR, 'ERROR: ' + str(msg))
+        self.logger.log(logging.ERROR, 'ERROR:        ' + str(msg))
         return None
 
     def w(self, msg):
-        self.logger.log(logging.WARNING, 'WARN: ' + str(msg))
+        self.logger.log(logging.WARNING, 'WARN:        ' + str(msg))
         return None
 
     def i(self, msg):
-        self.logger.log(logging.INFO, 'INFO: ' + str(msg))
+        self.logger.log(logging.INFO, 'INFO:        ' + str(msg))
         return None
 
     def d(self, msg):
-        self.logger.log(logging.DEBUG, 'DEBUG: ' + str(msg))
+        self.logger.log(logging.DEBUG, 'DEBUG:        ' + str(msg))
         return None
 
     def t(self, msg):
-        self.logger.log(logging.DEBUG, 'TRACE: ' + str(msg))
+        self.logger.log(logging.DEBUG, 'TRACE:        ' + str(msg))
         return None
 
 
