@@ -1,3 +1,10 @@
+'''
+Created on 2020/03/06
+
+@author: ChiamingMike
+'''
+
+
 class ColumnsDefinition:
     DATE = '日付'
     OPENING_PRICE = '始値'

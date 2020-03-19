@@ -1,3 +1,9 @@
+'''
+Created on 2020/03/06
+
+@author: ChiamingMike
+'''
+
 import time
 
 from container.DataContainer import JPDataContainer
