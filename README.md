@@ -57,7 +57,7 @@ No need to install the tool.
 
 ### Sequence diagram
 
-[Sequence diagram](https://github.com/ChiamingMike/stock_collector/blob/image/stock_collector/Sequence%20diagram.png)
+![Sequence diagram](https://github.com/ChiamingMike/stock_collector/blob/image/stock_collector/Sequence%20diagram.png)
 
 ### Release version
 
