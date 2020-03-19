@@ -61,12 +61,13 @@ No need to install the tool.
 
 ### Release version
 
-ver 0.0.0 : 1. Collecting data to calculate the average values.
-            2. Exporting data as CSV file.
+ver 0.0.0 : 
+1. Collecting data to calculate the average values.
+2. Exporting data as CSV file.
 
 ### To do list
 
 Will add the features as below:
-    1. Downloading all stock codes list to prevent the codes that doesn't exist.
-    2. Downloading other information. (e.g. every years ROE and ROA)
-    3. Calculating US stock prices. (Only can get the JP stock prices at this moment)
+1. Downloading all stock codes list to prevent the codes that doesn't exist.
+2. Downloading other information. (e.g. every years ROE and ROA)
+3. Calculating US stock prices. (Only can get the JP stock prices at this moment)
