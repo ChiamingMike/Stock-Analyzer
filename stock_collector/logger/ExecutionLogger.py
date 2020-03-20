@@ -85,6 +85,7 @@ class AverageDataLogger(ExecutionLogger):
         """
         self.file_name = 'stock_info'
         super().__init__(self.file_name)
+
         return None
 
     def dump_execution_log(self, average_data: pandas.DataFrame) -> None:
@@ -98,7 +99,9 @@ class AverageDataLogger(ExecutionLogger):
                                 mode='a',
                                 encoding='cp932')
             return None
+
         super().dump_execution_log(average_data)
+
         return None
 
 

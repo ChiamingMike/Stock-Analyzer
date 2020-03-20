@@ -21,8 +21,7 @@ class DataProcessor(object):
         self.url_container = JPUrlContainer()
 
         self.stock_code = stock_code
-        self.stock_name = self.url_container.get_conversion_table(
-            self.stock_code)
+        self.stock_name = self.url_container.convert_into_name(self.stock_code)
 
         return None
 

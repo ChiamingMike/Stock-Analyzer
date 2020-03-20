@@ -76,27 +76,27 @@ class Log(object):
 
         return None
 
-    def c(self, msg):
+    def c(self, msg) -> None:
         self.logger.log(logging.CRITICAL, 'CRITICAL:        ' + str(msg))
         return None
 
-    def e(self, msg):
+    def e(self, msg) -> None:
         self.logger.log(logging.ERROR, 'ERROR:        ' + str(msg))
         return None
 
-    def w(self, msg):
+    def w(self, msg) -> None:
         self.logger.log(logging.WARNING, 'WARN:        ' + str(msg))
         return None
 
-    def i(self, msg):
+    def i(self, msg) -> None:
         self.logger.log(logging.INFO, 'INFO:        ' + str(msg))
         return None
 
-    def d(self, msg):
+    def d(self, msg) -> None:
         self.logger.log(logging.DEBUG, 'DEBUG:        ' + str(msg))
         return None
 
-    def t(self, msg):
+    def t(self, msg) -> None:
         self.logger.log(logging.DEBUG, 'TRACE:        ' + str(msg))
         return None
 
