@@ -18,19 +18,19 @@ class DataContainer(object):
     def __init__(self) -> None:
         pass
 
-    def register_accumulative_data(self, url_table) -> None:
+    def register_accumulative_data(self) -> None:
         pass
 
-    def register_average_data(self, average_data_table: dict) -> None:
+    def register_average_data(self) -> None:
         pass
 
-    def get_accumulative_data(self, stock_code: str) -> pandas.DataFrame:
+    def get_accumulative_data(self) -> None:
         pass
 
-    def get_average_data(self) -> pandas.DataFrame:
+    def get_average_data(self) -> None:
         pass
 
-    def dump_accumulative_data(self, stock_name, stock_code: str) -> None:
+    def dump_accumulative_data(self) -> None:
         pass
 
     def dump_average_data(self) -> None:
@@ -96,6 +96,7 @@ class JPDataContainer(DataContainer):
         """
         """
         self.average_data_table = average_data_table
+
         return None
 
     def get_accumulative_data(self, stock_code: str) -> pandas.DataFrame:
@@ -111,7 +112,7 @@ class JPDataContainer(DataContainer):
     def dump_accumulative_data(self, stock_name, stock_code: str) -> None:
         """
         """
-        stock_name = self.url_container.get_conversion_table(stock_code)
+        stock_name = self.url_container.convert_into_name(stock_code)
         if stock_name == str():
             log.e('Failed to match stock name with stock code.')
             log.e('')

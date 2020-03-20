@@ -6,6 +6,7 @@ Created on 2020/03/06
 
 import configparser
 import os
+import pandas
 import re
 
 from bs4 import BeautifulSoup
@@ -13,6 +14,7 @@ from urllib import request
 
 from constant.Definition import UrlsDefinition
 from constant.Definition import PeriodDefinition
+from container.CodeContainer import JPCodeContainer
 from logger.Log import log
 
 
@@ -30,7 +32,7 @@ class UrlContainer(object):
     def get_stock_codes(self) -> list:
         pass
 
-    def get_conversion_table(self, stock_code: str) -> str:
+    def get_conversion_table(self) -> None:
         pass
 
     def get_url_table(self) -> dict:
@@ -76,7 +78,6 @@ class JPUrlContainer(UrlContainer):
         self.period = str()
         self.stock_codes = list()
         self.url_table = dict()
-        self.conversion_table = dict()
 
         try:
             root = os.path.join(os.path.dirname(
@@ -95,6 +96,8 @@ class JPUrlContainer(UrlContainer):
             return None
 
         self.stock_codes = sorted(list(set(stock_codes)))
+        self.code_container = JPCodeContainer(self.stock_codes)
+        self.get_conversion_table()
         # need to add a function to check if there is any invalid codes and eliminate them.
         self.create_initial_url()
 
@@ -151,9 +154,7 @@ class JPUrlContainer(UrlContainer):
                 soup = BeautifulSoup(html, 'html.parser')
                 is_exist_pager = soup.find('li', string='次へ＞')
                 if not is_exist_pager:
-                    # will remove the get stock_name part
-                    # will dl a stock code and name table beforehand
-                    stock_name = soup.find('h2').contents[1]
+                    stock_name = self.convert_into_name(stock_code)
                     self.conversion_table[stock_code] = stock_name
                     log.i(
                         f'Completed collecting URLs relating {stock_code} ({stock_name}).')
@@ -184,15 +185,21 @@ class JPUrlContainer(UrlContainer):
 
         return self.stock_codes
 
-    def get_conversion_table(self, stock_code: str) -> str:
+    def get_conversion_table(self) -> None:
         """
         """
-        return self.conversion_table.get(stock_code, str())
+        self.conversion_table = self.code_container.get_conversion_table()
+        return None
 
     def get_url_table(self) -> dict:
         """
         """
         return self.url_table
+
+    def convert_into_name(self, stock_code: str) -> str:
+        """
+        """
+        return self.conversion_table[stock_code]
 
     def _is_valid(self, url, stock_code) -> bool:
         """

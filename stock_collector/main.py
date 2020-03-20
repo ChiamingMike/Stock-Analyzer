@@ -41,18 +41,18 @@ class StockParser(object):
 
         return None
 
-    def calcualte_data(self):
+    def calcualte_data(self) -> None:
         """
         """
         for stock_code in self.stock_codes:
-            stock_name = self.url_container.get_conversion_table(stock_code)
+            stock_name = self.url_container.convert_into_name(stock_code)
             average_data_processor = AverageDataProcessor(stock_code)
             average_data_processor.calculate_data()
             self.export_data(stock_name, stock_code)
 
         return None
 
-    def export_data(self, stock_name, stock_code):
+    def export_data(self, stock_name, stock_code) -> None:
         """
         """
         self.data_container.dump_accumulative_data(stock_name, stock_code)

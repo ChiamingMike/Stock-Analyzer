@@ -19,6 +19,11 @@ class UrlsDefinition:
         'next_page': 'https://kabutan.jp/stock/kabuka{next_page}'
     }
 
+    jpx = {
+        'hp': 'https://www.jpx.co.jp',
+        'url': 'https://www.jpx.co.jp/english/markets/statistics-equities/misc/01.html'
+    }
+
 
 class PeriodDefinition:
     period = {
