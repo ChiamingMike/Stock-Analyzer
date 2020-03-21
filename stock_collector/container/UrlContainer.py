@@ -6,8 +6,6 @@ Created on 2020/03/06
 
 import configparser
 import os
-import pandas
-import re
 
 from bs4 import BeautifulSoup
 from urllib import request
@@ -21,7 +19,23 @@ from logger.Log import log
 class UrlContainer(object):
 
     def __init__(self) -> None:
-        pass
+        """
+        """
+        try:
+            root = os.path.join(os.path.dirname(
+                os.path.dirname(__file__)), 'conf', 'Setting.ini')
+            config = configparser.ConfigParser()
+            config.read(root)
+            section = 'DEFAULT'
+            self.period = PeriodDefinition.period.get(
+                config.get(section, 'period'), None)
+        except Exception as e:
+            log.w(e)
+            log.w('Failed to get the information from setting.ini .')
+            log.w('')
+            return None
+
+        return None
 
     def create_initial_url(self) -> None:
         pass
@@ -29,18 +43,12 @@ class UrlContainer(object):
     def register_accumulative_url(self) -> None:
         pass
 
-    def get_stock_codes(self) -> list:
-        pass
-
-    def get_conversion_table(self) -> None:
-        pass
-
     def get_url_table(self) -> dict:
         """
         """
         return self.url_table
 
-    def _is_valid(self, url, stock_code) -> bool:
+    def _is_url_valid(self, url, stock_code) -> bool:
         """
         """
         try:
@@ -56,49 +64,14 @@ class UrlContainer(object):
 
 class JPUrlContainer(UrlContainer):
 
-    __instance = None
-    __is_intialized = False
-
-    def __new__(cls):
-        """
-        """
-        if cls.__instance is None:
-            cls.__instance = object.__new__(cls)
-
-        return cls.__instance
-
     def __init__(self) -> None:
         """
         """
-        if self.__is_intialized is True:
-            return None
-
-        self.__is_intialized = True
-
-        self.period = str()
-        self.stock_codes = list()
         self.url_table = dict()
+        self.period = str()
+        super().__init__()
 
-        try:
-            root = os.path.join(os.path.dirname(
-                os.path.dirname(__file__)), 'conf', 'Setting.ini')
-            config = configparser.ConfigParser()
-            config.read(root)
-            section = 'DEFAULT'
-            stock_codes = re.sub(
-                r'\s+', '', config.get(section, 'code')).split(',')
-            self.period = PeriodDefinition.period.get(
-                config.get(section, 'period'), None)
-        except Exception as e:
-            log.w(e)
-            log.w('Failed to get the information from setting.ini .')
-            log.w('')
-            return None
-
-        self.stock_codes = sorted(list(set(stock_codes)))
-        self.code_container = JPCodeContainer(self.stock_codes)
-        self.get_conversion_table()
-        # need to add a function to check if there is any invalid codes and eliminate them.
+        self.code_container = JPCodeContainer()
         self.create_initial_url()
 
         return None
@@ -106,28 +79,19 @@ class JPUrlContainer(UrlContainer):
     def create_initial_url(self) -> None:
         """
         """
-        if self.stock_codes == list():
-            log.e('Failed to create URL (Stock code doesn\'t exist).')
-            log.e('')
-            return None
-        else:
-            stock_codes = ', '.join(self.stock_codes)
-            log.i(f'Found {len(self.stock_codes)} codes.')
-            log.i(f'STOCK CODE: {(stock_codes)}')
-            log.i('')
-
         url_format = UrlsDefinition.kabutan_jp.get('url', str())
         if url_format == str():
             log.w('Cannot find a format to create initial url.')
             log.w('')
             return None
 
+        stock_codes = self.code_container.get_stock_codes()
         OFFSET = 1
-        for stock_code in self.stock_codes:
+        for stock_code in stock_codes:
             url = url_format.format(stock_code=stock_code,
                                     period=self.period,
                                     offset=OFFSET)
-            if self._is_valid(url, stock_code):
+            if self._is_url_valid(url, stock_code):
                 self.url_table[stock_code] = [url]
 
         return None
@@ -154,8 +118,8 @@ class JPUrlContainer(UrlContainer):
                 soup = BeautifulSoup(html, 'html.parser')
                 is_exist_pager = soup.find('li', string='次へ＞')
                 if not is_exist_pager:
-                    stock_name = self.convert_into_name(stock_code)
-                    self.conversion_table[stock_code] = stock_name
+                    stock_name = self.code_container.convert_into_name(
+                        stock_code)
                     log.i(
                         f'Completed collecting URLs relating {stock_code} ({stock_name}).')
                     log.i(
@@ -175,36 +139,10 @@ class JPUrlContainer(UrlContainer):
 
         return None
 
-    def get_stock_codes(self) -> list:
+    def _is_url_valid(self, url, stock_code) -> bool:
         """
         """
-        if self.stock_codes == list():
-            log.e('Failed to get the list of sotck codes (Stock code doesn\'t exist).')
-            log.e('')
-            return list()
-
-        return self.stock_codes
-
-    def get_conversion_table(self) -> None:
-        """
-        """
-        self.conversion_table = self.code_container.get_conversion_table()
-        return None
-
-    def get_url_table(self) -> dict:
-        """
-        """
-        return self.url_table
-
-    def convert_into_name(self, stock_code: str) -> str:
-        """
-        """
-        return self.conversion_table[stock_code]
-
-    def _is_valid(self, url, stock_code) -> bool:
-        """
-        """
-        return super()._is_valid(url, stock_code)
+        return super()._is_url_valid(url, stock_code)
 
 
 if __name__ == '__main__':

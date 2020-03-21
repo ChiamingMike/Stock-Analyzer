@@ -4,8 +4,10 @@ Created on 2020/03/19
 @author: ChiamingMike
 '''
 
+import configparser
 import datetime
 import os
+import re
 import pandas
 
 from bs4 import BeautifulSoup
@@ -20,15 +22,39 @@ class CodeContainer(object):
     def __init__(self, file_name: str) -> None:
         """
         """
+        self.stock_codes = list()
+
+        try:
+            root = os.path.join(os.path.dirname(
+                os.path.dirname(__file__)), 'conf', 'Setting.ini')
+            config = configparser.ConfigParser()
+            config.read(root)
+            section = 'DEFAULT'
+            stock_codes = re.sub(
+                r'\s+', '', config.get(section, 'code')).split(',')
+        except Exception as e:
+            log.w(e)
+            log.w('Failed to get the information from setting.ini .')
+            log.w('')
+            return None
+
+        if stock_codes == list():
+            log.e('Failed to create URL (Stock code doesn\'t exist).')
+            log.e('')
+            return None
+        else:
+            self.stock_codes = ', '.join(stock_codes)
+            log.i(f'Found {len(stock_codes)} codes.')
+            log.i(f'STOCK CODE: {(self.stock_codes)}')
+            log.i('')
+
         execution_date = datetime.datetime.now().strftime('%Y%m')
         self.file_name = f'{execution_date}_{file_name}'
         self.file_path = os.path.join(os.path.dirname(
             os.path.dirname(__file__)), 'asset', file_name)
 
-        if not os.path.isfile(self.file_path):
-            self.download_conversion_table()
-
-        self.register_conversion_table()
+        self.stock_codes = sorted(list(set(stock_codes)))
+        #  need to check the stock codes
 
         return None
 
@@ -37,6 +63,16 @@ class CodeContainer(object):
 
     def download_conversion_table(self) -> None:
         pass
+
+    def get_stock_codes(self) -> list:
+        """
+        """
+        if self.stock_codes == list():
+            log.e('Failed to get the list of sotck codes (Stock code doesn\'t exist).')
+            log.e('')
+            return list()
+
+        return self.stock_codes
 
     def get_conversion_table(self) -> pandas.Series:
         """
@@ -48,18 +84,48 @@ class CodeContainer(object):
 
         return self.conversion_table
 
+    def convert_into_name(self, stock_code: str) -> str:
+        """
+        """
+        # add error handling
+        return self.conversion_table[stock_code]
+
+    def _is_code_valid(self) -> None:
+        """
+        """
+        pass
+
 
 class JPCodeContainer(CodeContainer):
 
-    def __init__(self, stock_codes) -> None:
+    __instance = None
+    __is_intialized = False
+
+    def __new__(cls):
         """
         """
+        if cls.__instance is None:
+            cls.__instance = object.__new__(cls)
+
+        return cls.__instance
+
+    def __init__(self) -> None:
+        """
+        """
+        if self.__is_intialized is True:
+            return None
+
+        self.__is_intialized = True
+
         file_name = 'JP_stock_list.xls'
+        super().__init__(file_name)
+
         self.conversion_table = pandas.Series()
 
-        self.stock_codes = stock_codes
+        if not os.path.isfile(self.file_path):
+            self.download_conversion_table()
 
-        super().__init__(file_name)
+        self.register_conversion_table()
 
         return None
 
@@ -88,7 +154,7 @@ class JPCodeContainer(CodeContainer):
         hp = UrlsDefinition.jpx.get('hp', str())
         url = UrlsDefinition.jpx.get('url', str())
         if str() in [hp, url]:
-            log.w('Cannot find a URL to download List of TSE-listed Issues.')
+            log.w('Cannot find a URL to download list of TSE-listed Issues.')
             log.w('')
             return None
 
@@ -100,10 +166,26 @@ class JPCodeContainer(CodeContainer):
 
         return None
 
+    def get_stock_codes(self) -> list:
+        """
+        """
+
+        return super().get_stock_codes()
+
     def get_conversion_table(self) -> pandas.Series:
         """
         """
         return super().get_conversion_table()
+
+    def convert_into_name(self, stock_code: str) -> str:
+        """
+        """
+        return super().convert_into_name(stock_code)
+
+    def _is_code_valid(self) -> None:
+        """
+        """
+        pass
 
 
 if __name__ == '__main__':

@@ -8,6 +8,7 @@ import time
 
 from container.DataContainer import JPDataContainer
 from container.UrlContainer import JPUrlContainer
+from container.UrlContainer import JPCodeContainer
 from logger.Log import log
 from processor.Processor import AverageDataProcessor
 
@@ -17,10 +18,11 @@ class StockParser(object):
     def __init__(self) -> None:
         """
         """
+        self.code_container = JPCodeContainer()
         self.url_container = JPUrlContainer()
         self.data_container = JPDataContainer()
 
-        self.stock_codes = self.url_container.get_stock_codes()
+        self.stock_codes = self.code_container.get_stock_codes()
         self.accumulate_urls()
         self.accumulate_data()
 
@@ -31,6 +33,7 @@ class StockParser(object):
         """
         self.url_container.register_accumulative_url()
         self.url_table = self.url_container.get_url_table()
+        del self.url_container
 
         return None
 
@@ -45,8 +48,9 @@ class StockParser(object):
         """
         """
         for stock_code in self.stock_codes:
-            stock_name = self.url_container.convert_into_name(stock_code)
-            average_data_processor = AverageDataProcessor(stock_code)
+            stock_name = self.code_container.convert_into_name(stock_code)
+            average_data_processor = AverageDataProcessor(stock_name,
+                                                          stock_code)
             average_data_processor.calculate_data()
             self.export_data(stock_name, stock_code)
 

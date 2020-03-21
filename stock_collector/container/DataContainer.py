@@ -7,7 +7,6 @@ Created on 2020/03/06
 import pandas
 
 from constant.Definition import ColumnsDefinition
-from container.UrlContainer import JPUrlContainer
 from logger.ExecutionLogger import AccumulativeDataLogger
 from logger.ExecutionLogger import AverageDataLogger
 from logger.Log import log
@@ -58,9 +57,6 @@ class JPDataContainer(DataContainer):
 
         self.__is_initialized = True
 
-        self.url_container = JPUrlContainer()
-
-        self.stock_codes = self.url_container.get_stock_codes()
         self.stock_code = str()
         self.average_data_table = dict()
         self.data_table = dict()
@@ -109,15 +105,9 @@ class JPDataContainer(DataContainer):
         """
         return self.average_data_table
 
-    def dump_accumulative_data(self, stock_name, stock_code: str) -> None:
+    def dump_accumulative_data(self, stock_name: str, stock_code: str) -> None:
         """
         """
-        stock_name = self.url_container.convert_into_name(stock_code)
-        if stock_name == str():
-            log.e('Failed to match stock name with stock code.')
-            log.e('')
-            return None
-
         accumulative_data_logger = AccumulativeDataLogger(stock_name,
                                                           stock_code)
         accumulative_data_logger.dump_execution_log(

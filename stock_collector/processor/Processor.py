@@ -8,20 +8,18 @@ import pandas
 
 from constant.Definition import ColumnsDefinition
 from container.DataContainer import JPDataContainer
-from container.UrlContainer import JPUrlContainer
 from logger.Log import log
 
 
 class DataProcessor(object):
 
-    def __init__(self, stock_code) -> None:
+    def __init__(self, stock_name, stock_code) -> None:
         """
         """
         self.data_container = JPDataContainer()
-        self.url_container = JPUrlContainer()
 
         self.stock_code = stock_code
-        self.stock_name = self.url_container.convert_into_name(self.stock_code)
+        self.stock_name = stock_name
 
         return None
 
@@ -38,7 +36,7 @@ class DataProcessor(object):
 
 class AverageDataProcessor(DataProcessor):
 
-    def __init__(self, stock_code) -> None:
+    def __init__(self, stock_name, stock_code) -> None:
         """
         """
         self.length = int()
@@ -46,7 +44,7 @@ class AverageDataProcessor(DataProcessor):
         self.high = str()
         self.low = str()
         self.close = str()
-        super().__init__(stock_code)
+        super().__init__(stock_name, stock_code)
 
         self.set_target_data()
 
