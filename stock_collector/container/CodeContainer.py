@@ -22,8 +22,6 @@ class CodeContainer(object):
     def __init__(self, file_name: str) -> None:
         """
         """
-        self.stock_codes = list()
-
         try:
             root = os.path.join(os.path.dirname(
                 os.path.dirname(__file__)), 'conf', 'Setting.ini')
@@ -32,31 +30,22 @@ class CodeContainer(object):
             section = 'DEFAULT'
             stock_codes = re.sub(
                 r'\s+', '', config.get(section, 'code')).split(',')
+            self.stock_codes = sorted(list(set(stock_codes)))
         except Exception as e:
             log.w(e)
             log.w('Failed to get the information from setting.ini .')
             log.w('')
             return None
 
-        if stock_codes == list():
-            log.e('Failed to create URL (Stock code doesn\'t exist).')
-            log.e('')
-            return None
-        else:
-            self.stock_codes = ', '.join(stock_codes)
-            log.i(f'Found {len(stock_codes)} codes.')
-            log.i(f'STOCK CODE: {(self.stock_codes)}')
-            log.i('')
-
         execution_date = datetime.datetime.now().strftime('%Y%m')
         self.file_name = f'{execution_date}_{file_name}'
         self.file_path = os.path.join(os.path.dirname(
-            os.path.dirname(__file__)), 'asset', file_name)
-
-        self.stock_codes = sorted(list(set(stock_codes)))
-        #  need to check the stock codes
+            os.path.dirname(__file__)), 'asset', self.file_name)
 
         return None
+
+    def register_stock_codes(self, stock_codes) -> None:
+        pass
 
     def register_conversion_table(self) -> None:
         pass
@@ -87,8 +76,15 @@ class CodeContainer(object):
     def convert_into_name(self, stock_code: str) -> str:
         """
         """
-        # add error handling
-        return self.conversion_table[stock_code]
+        try:
+            stock_name = self.conversion_table[stock_code]
+        except Exception as e:
+            log.e(e)
+            log.e('Failed to convert code into name.')
+            log.e('')
+            return str()
+
+        return stock_name
 
     def _is_code_valid(self) -> None:
         """
@@ -117,6 +113,7 @@ class JPCodeContainer(CodeContainer):
 
         self.__is_intialized = True
 
+        self.stock_codes = list()
         file_name = 'JP_stock_list.xls'
         super().__init__(file_name)
 
@@ -126,6 +123,28 @@ class JPCodeContainer(CodeContainer):
             self.download_conversion_table()
 
         self.register_conversion_table()
+
+        return None
+
+    def register_stock_codes(self, codes_list) -> None:
+        """
+        """
+        pattern = re.compile(r'^(\d{4})$')
+        codes = [code for code in self.stock_codes if pattern.match(code)]
+        stock_codes = [code for code in codes if code in codes_list]
+        if stock_codes == list():
+            log.e('Failed to create URL.')
+            log.e('Valid Stock code doesn\'t exist.')
+            log.e('')
+            return None
+        else:
+            self.stock_codes = stock_codes
+            stock_codes = ', '.join(stock_codes)
+            log.i(f'Found {len(self.stock_codes)} codes.')
+            log.i(f'STOCK CODE: {stock_codes}')
+            log.i('')
+
+            return None
 
         return None
 
@@ -144,6 +163,7 @@ class JPCodeContainer(CodeContainer):
         df.rename(columns={'Local Code': 'code', 'Name (English)': 'name'},
                   inplace=True)
         df.set_index('code', inplace=True)
+        self.register_stock_codes(list(df.index))
         self.conversion_table = df.loc[self.stock_codes, 'name']
 
         return None
