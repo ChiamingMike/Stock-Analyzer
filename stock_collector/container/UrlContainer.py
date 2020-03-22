@@ -71,8 +71,19 @@ class JPUrlContainer(UrlContainer):
 
     def __init__(self) -> None:
         """
+        A repository of URLs.
+
+        Attributes
+        ----------
+        url_table: dict
+            A relationship between codes and URLs.
+        term: str
+            example: daily, weekly, monthly, yearly (For User)
+        period: str
+            example: day, wek, mon, yar (For system)
         """
         self.url_table = dict()
+        self.term = str()
         self.period = str()
         super().__init__()
 
@@ -83,6 +94,7 @@ class JPUrlContainer(UrlContainer):
 
     def create_initial_url(self) -> None:
         """
+        Create initial URL accroding to code and term that user input.
         """
         url_format = UrlsDefinition.kabutan_jp.get('url', str())
         if url_format == str():
@@ -103,6 +115,7 @@ class JPUrlContainer(UrlContainer):
 
     def register_accumulative_url(self) -> None:
         """
+        Use initial URL to find relevant URLs.
         """
         next_url_format = UrlsDefinition.kabutan_jp.get('next_page', str())
         if next_url_format == str():
