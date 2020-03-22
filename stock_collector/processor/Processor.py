@@ -5,6 +5,7 @@ Created on 2020/03/06
 '''
 
 import pandas
+import datetime
 
 from constant.Definition import ColumnsDefinition
 from container.DataContainer import JPDataContainer
@@ -13,11 +14,15 @@ from logger.Log import log
 
 class DataProcessor(object):
 
-    def __init__(self, stock_name, stock_code) -> None:
+    def __init__(self, term, stock_name, stock_code) -> None:
         """
         """
+        execution_date = datetime.datetime.now().strftime('%Y-%m-%d')
+
         self.data_container = JPDataContainer()
 
+        self.term = term
+        self.date = execution_date
         self.stock_code = stock_code
         self.stock_name = stock_name
 
@@ -36,7 +41,7 @@ class DataProcessor(object):
 
 class AverageDataProcessor(DataProcessor):
 
-    def __init__(self, stock_name, stock_code) -> None:
+    def __init__(self, term, stock_name, stock_code) -> None:
         """
         """
         self.length = int()
@@ -44,7 +49,7 @@ class AverageDataProcessor(DataProcessor):
         self.high = str()
         self.low = str()
         self.close = str()
-        super().__init__(stock_name, stock_code)
+        super().__init__(term, stock_name, stock_code)
 
         self.set_target_data()
 
@@ -81,23 +86,24 @@ class AverageDataProcessor(DataProcessor):
     def calculate_data(self) -> None:
         """
         """
-        average_data_table = dict()
         if str() in [self.open, self.high, self.low, self.close]:
             log.e('Failed to do calculation with accumulative data.')
             log.e('')
             return None
 
         average_data = pandas.DataFrame([{
-            'Name': str(self.stock_name),
-            'Code': str(self.stock_code),
-            'Open (ave)': float(self.open / self.length),
-            'High (ave)': float(self.high / self.length),
-            'Low (ave)': float(self.low / self.length),
-            'Close (ave)': float(self.close / self.length)
+            'TERM': str(self.term),
+            'DATE': str(self.date),
+            'NAME': str(self.stock_name),
+            'CODE': str(self.stock_code),
+            'OPENING PRICE (AVE)': float(self.open / self.length),
+            'HIGH PRICE (AVE)': float(self.high / self.length),
+            'LOW PRICE (AVE)': float(self.low / self.length),
+            'CLOSING PRICE (AVE)': float(self.close / self.length)
         }])
 
-        average_data_table[self.stock_code] = average_data
-        self.data_container.register_average_data(average_data_table)
+        self.data_container.register_average_data(self.stock_code,
+                                                  average_data)
 
         return None
 

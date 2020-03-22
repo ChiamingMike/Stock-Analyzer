@@ -57,7 +57,8 @@ class CodeContainer(object):
         """
         """
         if self.stock_codes == list():
-            log.e('Failed to get the list of sotck codes (Stock code doesn\'t exist).')
+            log.e('Failed to get a list of sotck codes.')
+            log.e('Stock code doesn\'t exist.')
             log.e('')
             return list()
 
@@ -85,11 +86,6 @@ class CodeContainer(object):
             return str()
 
         return stock_name
-
-    def _is_code_valid(self) -> None:
-        """
-        """
-        pass
 
 
 class JPCodeContainer(CodeContainer):
@@ -140,7 +136,7 @@ class JPCodeContainer(CodeContainer):
         else:
             self.stock_codes = stock_codes
             stock_codes = ', '.join(stock_codes)
-            log.i(f'Found {len(self.stock_codes)} codes.')
+            log.i(f'Found {len(self.stock_codes)} valid codes.')
             log.i(f'STOCK CODE: {stock_codes}')
             log.i('')
 
@@ -185,27 +181,6 @@ class JPCodeContainer(CodeContainer):
         request.urlretrieve(url, self.file_path)
 
         return None
-
-    def get_stock_codes(self) -> list:
-        """
-        """
-
-        return super().get_stock_codes()
-
-    def get_conversion_table(self) -> pandas.Series:
-        """
-        """
-        return super().get_conversion_table()
-
-    def convert_into_name(self, stock_code: str) -> str:
-        """
-        """
-        return super().convert_into_name(stock_code)
-
-    def _is_code_valid(self) -> None:
-        """
-        """
-        pass
 
 
 if __name__ == '__main__':

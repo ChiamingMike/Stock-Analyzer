@@ -27,8 +27,8 @@ class UrlContainer(object):
             config = configparser.ConfigParser()
             config.read(root)
             section = 'DEFAULT'
-            self.period = PeriodDefinition.period.get(
-                config.get(section, 'period'), None)
+            self.term = config.get(section, 'period')
+            self.period = PeriodDefinition.period.get(self.term, None)
         except Exception as e:
             log.w(e)
             log.w('Failed to get the information from setting.ini .')
@@ -47,6 +47,11 @@ class UrlContainer(object):
         """
         """
         return self.url_table
+
+    def get_term(self) -> str:
+        """
+        """
+        return self.term
 
     def _is_url_valid(self, url, stock_code) -> bool:
         """
@@ -121,9 +126,9 @@ class JPUrlContainer(UrlContainer):
                     stock_name = self.code_container.convert_into_name(
                         stock_code)
                     log.i(
-                        f'Completed collecting URLs relating {stock_code} ({stock_name}).')
+                        f'Found URLs related to {stock_code} ({stock_name}).')
                     log.i(
-                        f'{len(self.url_table[stock_code])} relevant URLs found.')
+                        f'{len(self.url_table[stock_code])} URLs found.')
                     log.i('')
                     break
                 elif is_exist_pager:
@@ -138,11 +143,6 @@ class JPUrlContainer(UrlContainer):
                     # time.sleep(3)
 
         return None
-
-    def _is_url_valid(self, url, stock_code) -> bool:
-        """
-        """
-        return super()._is_url_valid(url, stock_code)
 
 
 if __name__ == '__main__':

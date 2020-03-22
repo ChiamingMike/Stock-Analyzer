@@ -19,7 +19,6 @@ class ExecutionLogger(object):
         """
         execution_date = datetime.datetime.now().strftime('%Y%m%d')
 
-        self.log_file_name = f'{execution_date}_{file_name}.csv'
         self.log_path = str()
         self.file_path = str()
 
@@ -42,11 +41,11 @@ class ExecutionLogger(object):
             os.makedirs(os.path.join(self.log_path,
                                      execution_date), exist_ok=True)
             self.file_path = os.path.join(
-                self.log_path, execution_date, self.log_file_name)
+                self.log_path, execution_date, file_name)
         except Exception as e:
-            self.e(e)
-            self.e('Failed to create a log file.')
-            self.e('')
+            log.e(e)
+            log.e('Failed to create a log file.')
+            log.e('')
             return None
 
         return None
@@ -67,14 +66,10 @@ class AccumulativeDataLogger(ExecutionLogger):
     def __init__(self, sotck_name, stock_code) -> None:
         """
         """
-        self.file_name = f'{stock_code}_{sotck_name}'
-        super().__init__(self.file_name)
-        return None
+        execution_date = datetime.datetime.now().strftime('%Y%m%d')
 
-    def dump_execution_log(self, accumulative_data: pandas.DataFrame) -> None:
-        """
-        """
-        super().dump_execution_log(accumulative_data)
+        self.file_name = f'{execution_date}_{stock_code}_{sotck_name}.csv'
+        super().__init__(self.file_name)
         return None
 
 
@@ -83,26 +78,27 @@ class AverageDataLogger(ExecutionLogger):
     def __init__(self) -> None:
         """
         """
-        self.file_name = 'stock_info'
+        self.file_name = 'stock_info.csv'
         super().__init__(self.file_name)
 
         return None
 
-    def dump_execution_log(self, average_data: pandas.DataFrame) -> None:
+    def get_existence_log(self) -> pandas.DataFrame:
         """
         """
-        if os.path.isfile(self.file_path)\
-                and os.path.getsize(self.file_path) != 0:
-            average_data.to_csv(self.file_path,
-                                header=False,
-                                index=False,
-                                mode='a',
-                                encoding='cp932')
-            return None
+        if not os.path.isfile(self.file_path)\
+                or os.path.getsize(self.file_path) == 0:
+            return pandas.DataFrame()
 
-        super().dump_execution_log(average_data)
+        try:
+            existence_log = pandas.read_csv(self.file_path)
+        except Exception as e:
+            log.e(e)
+            log.e('Failed to read existence log.')
+            log.e('')
+            return pandas.DataFrame()
 
-        return None
+        return existence_log
 
 
 if __name__ == '__main__':

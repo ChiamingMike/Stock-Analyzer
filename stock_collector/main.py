@@ -23,6 +23,7 @@ class StockParser(object):
         self.data_container = JPDataContainer()
 
         self.stock_codes = self.code_container.get_stock_codes()
+        self.term = self.url_container.get_term()
         self.accumulate_urls()
         self.accumulate_data()
 
@@ -49,17 +50,19 @@ class StockParser(object):
         """
         for stock_code in self.stock_codes:
             stock_name = self.code_container.convert_into_name(stock_code)
-            average_data_processor = AverageDataProcessor(stock_name,
+            average_data_processor = AverageDataProcessor(self.term,
+                                                          stock_name,
                                                           stock_code)
             average_data_processor.calculate_data()
-            self.export_data(stock_name, stock_code)
+            self.data_container.dump_accumulative_data(stock_name, stock_code)
+        else:
+            self.export_data()
 
         return None
 
-    def export_data(self, stock_name, stock_code) -> None:
+    def export_data(self) -> None:
         """
         """
-        self.data_container.dump_accumulative_data(stock_name, stock_code)
         self.data_container.dump_average_data()
 
         return None

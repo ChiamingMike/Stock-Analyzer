@@ -60,6 +60,7 @@ class JPDataContainer(DataContainer):
         self.stock_code = str()
         self.average_data_table = dict()
         self.data_table = dict()
+        self.average_data = pandas.DataFrame()
 
         return None
 
@@ -77,21 +78,22 @@ class JPDataContainer(DataContainer):
             target_data = [pandas.read_html(url)[5] for url in urls]
             if len(target_data) != len(urls) or target_data == list():
                 log.e(
-                    f'Failed to accumulate data with URLs related to {stock_code}.')
+                    f'Failed to accumulate data with URLs ({stock_code}).')
                 log.e('')
                 continue
             else:
-                self.data_table[stock_code] = pandas.concat(target_data, axis=0).sort_values(
-                    ColumnsDefinition.DATE, ascending=False)
+                self.data_table[stock_code] = pandas.concat(
+                    target_data, axis=0).sort_values(ColumnsDefinition.DATE,
+                                                     ascending=False)
                 log.i(f'Accumulated data with URLs related to {stock_code}.')
                 log.i('')
 
         return None
 
-    def register_average_data(self, average_data_table: dict) -> None:
+    def register_average_data(self, stock_code, average_data) -> None:
         """
         """
-        self.average_data_table = average_data_table
+        self.average_data_table[stock_code] = average_data
 
         return None
 
@@ -118,11 +120,20 @@ class JPDataContainer(DataContainer):
     def dump_average_data(self) -> None:
         """
         """
+        df_list = list()
         average_data_logger = AverageDataLogger()
+        existence_log = average_data_logger.get_existence_log()
+        if not existence_log.empty:
+            df_list.append(existence_log)
+
         for stock_code, average_data in self.average_data_table.items():
+            df_list.append(average_data)
             log.i(f'Exporting average data...({stock_code})')
             log.i('')
-            average_data_logger.dump_execution_log(average_data)
+        else:
+            self.average_data = pandas.concat(df_list, axis=0)
+            self.average_data.sort_values(['TERM', 'CODE'], inplace=True)
+            average_data_logger.dump_execution_log(self.average_data)
 
         return None
 
