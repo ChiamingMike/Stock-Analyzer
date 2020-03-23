@@ -16,7 +16,7 @@ Setting.ini
 [DEFAULT]
 period = weekly
 
-code = 9434, 9020, 9434
+code = 9434, 9020, 9143
 
 ```
 
